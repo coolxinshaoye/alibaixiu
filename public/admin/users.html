@@ -73,15 +73,16 @@
                         </div>
                         <div class="form-group ">
                             <div class="radio-inline">
-                                <label><input type="radio" name="role"  value="admin">超级管理员</label>
+                                <label><input type="radio" id="admin" name="role"  value="admin">管理员</label>
                             </div>
                             <div class="radio-inline">
-                                <label><input type="radio" name="role" value="normal">普通用户</label>
+                                <label><input type="radio" id="normal" name="role" value="normal">普通用户</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <!-- //将submit改为button -->
                             <button class="btn btn-primary" type="button" id="addUser">添加</button>
+                            <button class="btn btn-primary" type="button" id="editUser" style="display: none">修改</button>
                         </div>
                     </form>
                 </div>
@@ -187,7 +188,7 @@
             <td>{{$value.nickName}}</td>
             <td>{{$value.status == 0 ? '未激活': '激活'}}</td>
             <td>{{$value.role == 'admin' ? '管理员' : '普通用户'}}</td>
-            <td class="text-center">
+            <td class="text-center" data-id="{{$value._id}}">
                 <a href="javascript:;" class="btn btn-default btn-xs edit" data-id="{{$value._id}}">编辑</a>
                 <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
             </td>
@@ -244,7 +245,7 @@
         // 完成图片上传功能
         $('#avatar').on('change', function() {
             // 创建ForData
-            var formData = new FormData();
+            let formData = new FormData();
             formData.append('avatar', this.files[0]);
             //发送ajax
             $.ajax({
@@ -256,29 +257,80 @@
                 success: function(res) {
                     $('#img').val(res[0].avatar);
                     $('#prev').attr('src', res[0].avatar);
-
-
                 }
             });
-            // $('#prev').attr("src", "../assets/img/default.png");
-            // 清除 
         });
-        //完成修改功能
-        // $('tbody').on('click', '.edit', function() {
-        //     $('form>2').text('修改用户');
-        //     var trObj = $('this').parents('tr');
-        //     $('#email').val(trObj.children().eq(2).text());
-        //     $('#nickName').val(trObj.children().eq(3).text());
-        //     var status = trObj.children().eq(4).text();
-        //     var role = trObj.children().eq(5).text();
-        //     var imgSrc = trObj.children().eq(1).find('img').attr('src');
-        //     if (imgSrc) {
-        //         $('#prev').attr('src', imgSrc);
-        //         $('#img').val(imgSrc);
-        //     }
-        //     $('#addUser').hide();
-        //     $('#editUser').show();
-        // })
+        // 完成修改功能
+        var id;
+        $('tbody').on('click', '.edit', function() {
+            id = $(this).parent().attr('data-id')
+            $('form > h2').text('修改用户');
+            var trObj = $(this).parents('tr');
+            $('#email').val(trObj.children().eq(2).text());
+            $('#nickName').val(trObj.children().eq(3).text());
+            var status = trObj.children().eq(4).text();
+            console.log(status);
+
+            var role = trObj.children().eq(5).text();
+            console.log(role);
+
+            var imgSrc = trObj.children().eq(1).find('img').attr('src');
+            if (imgSrc) {
+                $('#prev').attr('src', imgSrc);
+                $('#img').val(imgSrc);
+            } else {
+                $('#prev').attr('src', '../assets/img/default.png');
+                $('#img').val('');
+            };
+            if (status == '激活') {
+                $('#jh').prop('checked', true);
+
+            } else {
+                $('#wjh').prop('checked', true);
+            }
+            if (role == '管理员') {
+                $('#admin').prop('checked', true);
+            } else {
+                $('#normal').prop('checked', true);
+            }
+            $('#addUser').hide();
+            $('#editUser').show();
+        });
+        //给修改功能注册事件
+        $('#editUser').on('click', function() {
+            //收集表单数据
+            let formDate = $('form').serialize();
+            console.log(formDate);
+
+            $.ajax({
+                type: 'put',
+                url: '/users/' + id,
+                data: formDate,
+                success: function(res) {
+                    // 通过res对象里面的_id属性的值去数组中 userArr这个数组将对应的元素找出来 
+                    // 如果数组里面的元素的_id的值刚好等于了res._id 
+                    console.log(res);
+
+                    var index = userArr.findIndex(item => item._id == res._id);
+                    // 将res这个对象赋值给了userArr这个数组里面的指定的元素
+                    userArr[index] = res;
+                    console.log(userArr);
+
+                    render(userArr);
+                    $('#addUser').show();
+                    $('#editUser').hide();
+                    $('form > h2').text('添加新用户');
+                    $('#img').val("");
+                    $('#prev').attr('src', "../assets/img/default.png");
+                    $('#email').val("");
+                    $('#nickName').val("");
+                    $('#admin').prop('checked', false);
+                    $('#normal').prop('checked', true);
+                    $('#jh').prop('checked', false);
+                    $('#wjh').prop('checked', true);
+                }
+            })
+        });
     </script>
     <script>
         NProgress.done()
