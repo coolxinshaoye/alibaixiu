@@ -53,27 +53,27 @@
                         </div>
                         <div class="form-group">
                             <label>邮箱</label>
-                            <input class="form-control" type="email" placeholder="请输入邮箱" name="email">
+                            <input class="form-control" type="email" placeholder="请输入邮箱" name="email" id="email">
                         </div>
                         <div class="form-group">
                             <label>昵称</label>
-                            <input class=" form-control" type="text " placeholder="请输入昵称 " name="nickName">
+                            <input class=" form-control" type="text " placeholder="请输入昵称 " name="nickName" id="nickName">
                         </div>
                         <div class="form-group ">
                             <label>密码</label>
-                            <input class="form-control" type="text " placeholder="请输入密码 " name="password">
+                            <input class="form-control" type="text " placeholder="请输入密码 " name="password" id="password">
                         </div>
                         <div class="form-group ">
                             <div class="radio-inline ">
-                                <label><input type="radio" name="status" value="0">未激活</label>
+                                <label><input type="radio" id="wjh" name="status" value="0">未激活</label>
                             </div>
                             <div class="radio-inline ">
-                                <label><input type="radio" name="status" value="1">激活</label>
+                                <label><input type="radio" id="jh" name="status" value="1">激活</label>
                             </div>
                         </div>
                         <div class="form-group ">
                             <div class="radio-inline">
-                                <label><input type="radio" name="role" value="admin">超级管理员</label>
+                                <label><input type="radio" name="role"  value="admin">超级管理员</label>
                             </div>
                             <div class="radio-inline">
                                 <label><input type="radio" name="role" value="normal">普通用户</label>
@@ -201,38 +201,84 @@
         $.ajax({
             type: 'get',
             url: '/users',
-            success: function(response) {
-                var html = template('userTpl', {
-                    list: response
-                });
-
-                // 将拼接好的字符串显示在页面中
-                $('#userBox').html(html);
+            success: function(res) {
+                userArr = res;
+                render(res)
             }
-        })
+        });
 
-        // function render(arr) {
+        function render(arr) {
+            var str = template('userTpl', {
+                list: arr
+            });
+            $('tbody').html(str);
+        };
+        $('#addUser').on('click', function() {
+            //收集表单数据
+            let formDate = $('form').serialize();
+            console.log(formDate);
 
-        // }
+            $.ajax({
+                type: 'POST',
+                url: '/users',
+                data: formDate,
+                success: function(res) {
+                    console.log(res);
 
-        // $('#addUser').on('click', function() {
-        //     //收集表单数据
-        //     let formDate = $('form').serialize();
-        //     $.ajax({
-        //         type: 'post',
-        //         url: '/users',
-        //         data: FormData,
-        //         success: function(res) {
-        //             userArr.push(res);
-        //             render(userArr)
-        //         }
-        //     })
-        // })
-        //完成图片上传功能
+                    userArr.push(res);
+                    console.log(userArr);
+
+                    render(userArr);
+                    $('#img').val("");
+                    $('#prev').attr("src", "../assets/img/default.png");
+                    $('#email').val("");
+                    $('#nickName').val("");
+                    $('#password').val("");
+                    $('#admin').prop('checked', false);
+                    $('#normal').prop('checked', true);
+                    $('#jh').prop('checked', false);
+                    $('#wjh').prop('checked', true);
+                }
+            })
+        });
+        // 完成图片上传功能
         $('#avatar').on('change', function() {
-            var formDate = new FormDate();
-            formDate.append('avatar', )
-        })
+            // 创建ForData
+            var formData = new FormData();
+            formData.append('avatar', this.files[0]);
+            //发送ajax
+            $.ajax({
+                type: 'post',
+                url: '/upload',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    $('#img').val(res[0].avatar);
+                    $('#prev').attr('src', res[0].avatar);
+
+
+                }
+            });
+            // $('#prev').attr("src", "../assets/img/default.png");
+            // 清除 
+        });
+        //完成修改功能
+        // $('tbody').on('click', '.edit', function() {
+        //     $('form>2').text('修改用户');
+        //     var trObj = $('this').parents('tr');
+        //     $('#email').val(trObj.children().eq(2).text());
+        //     $('#nickName').val(trObj.children().eq(3).text());
+        //     var status = trObj.children().eq(4).text();
+        //     var role = trObj.children().eq(5).text();
+        //     var imgSrc = trObj.children().eq(1).find('img').attr('src');
+        //     if (imgSrc) {
+        //         $('#prev').attr('src', imgSrc);
+        //         $('#img').val(imgSrc);
+        //     }
+        //     $('#addUser').hide();
+        //     $('#editUser').show();
+        // })
     </script>
     <script>
         NProgress.done()
