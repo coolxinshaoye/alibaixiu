@@ -15,8 +15,8 @@ module.exports = async(req, res) => {
 
     // 获取用户id
     const id = req.params['id'];
-    console.log(id)
-        // 验证模型
+    // console.log(id)
+    // 验证模型
     const schema = Joi.string().required().regex(/^[0-9a-fA-F]{24}$/).error(new Error('用户id不符合格式'))
         // 如果id中存在-
     if (id.indexOf('-') != -1) {
@@ -48,9 +48,9 @@ module.exports = async(req, res) => {
         res.send(result);
 
     } else {
-        console.log("ok")
-            // 单个删除
-            // 验证
+        // console.log("ok")
+        // 单个删除
+        // 验证
         const { error } = Joi.validate(id, schema);
         // 数据格式没有通过验证
         if (error) return res.status(400).send({ message: error.message });

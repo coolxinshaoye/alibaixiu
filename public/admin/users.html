@@ -365,21 +365,44 @@
             }
         })
         $('tbody').on('click', 'input[type ="checkbox"]', function() {
-            var checkLength = $('tbody input[type ="checkbox"]').length;
-            var cLength = $('tbody input[type ="checkbox"]:checked').length;
-            if (checkLength == cLength) {
-                $('thead input[type ="checkbox"]').prop('checked', true)
-            } else {
-                $('thead input[type ="checkbox"]').prop('checked', false)
-            }
+                var checkLength = $('tbody input[type ="checkbox"]').length;
+                var cLength = $('tbody input[type ="checkbox"]:checked').length;
+                if (checkLength == cLength) {
+                    $('thead input[type ="checkbox"]').prop('checked', true)
+                } else {
+                    $('thead input[type ="checkbox"]').prop('checked', false)
+                }
 
-            //如果复选框大于1 ，批量删除按钮显示
-            if (cLength > 1) {
-                $("#allDel").show()
-            } else {
-                $("#allDel").hide()
+                //如果复选框大于1 ，批量删除按钮显示
+                if (cLength > 1) {
+                    $("#allDel").show()
+                } else {
+                    $("#allDel").hide()
 
-            }
+                }
+            })
+            //多选删除功能 给批量删除按钮注册点击事件
+        $('#allDel').on('click', function() {
+            //获取所有选中的input 删除
+            var checkUser = $('tbody input:checked');
+            var ids = [];
+            // 编辑checkUser jQuery对象
+            checkUser.each(function(index, item) {
+                ids.push($(item).attr('data-id'))
+            });
+            //完成删除多个事件
+            $.ajax({
+                url: '/users/' + ids.join('-'),
+                type: 'delete',
+                success: function(res) {
+                    //返回的是一个对象 然后根据这个对象去userArr数组中将对应的索引找到 然后调离 splice（）方法将元素移除，调用render（）方法重新渲染
+                    res.forEach(value => {
+                        var index = userArr.findIndex(item => item._id == value._id);
+                        userArr.splice(index, 1);
+                        render(userArr)
+                    })
+                }
+            })
         })
     </script>
     <script>

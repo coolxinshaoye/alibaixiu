@@ -53,6 +53,7 @@
                         <!-- show when image chose -->
                         <img class="help-block thumbnail" style="display: none">
                         <input id="feature" class="form-control" name="feature" type="file">
+                        <input id="img" name="thumbnail" type="hidden">
                     </div>
                     <div class="form-group">
                         <label for="category">所属分类</label>
@@ -120,6 +121,53 @@
     <script src="../assets/vendors/jquery/jquery.js"></script>
     <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
     <script src="../assets/js/comment.js"></script>
+    <script src="../assets/vendors/art-template/template-web.js"></script>
+    <script herf="text/html">
+    </script>
+    <script>
+        //完成图片上传功能
+        $('#feature').on('change', function() {
+            // 创建ForData
+            let formData = new FormData();
+            formData.append('avatar', this.files[0]);
+            //发送ajax
+            $.ajax({
+                type: 'post',
+                url: '/upload',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    $('#img').val(res[0].avatar);
+                    $('#prev').show().attr('src', res[0].avatar);
+                    console.log(res);
+                }
+            });
+        });
+        // 获所有分类
+        $.ajax({
+                type: 'post',
+                url: '/categories',
+                success: function(res) {
+                    var str = template('cTpl', {
+                        list: res
+                    });
+                    $('#category').append(str);
+                }
+            })
+            //添加文章功能
+        $('#pAdd').on('click', function() {
+            var formDate = $('form').serialize();
+            $.ajax({
+                type: 'post',
+                url: '/posts',
+                data: formDate,
+                success: function(res) {
+                    location.href = 'posts.html';
+                }
+            })
+        })
+    </script>
     <script>
         NProgress.done()
     </script>
