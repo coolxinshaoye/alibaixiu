@@ -63,6 +63,7 @@
                             <tr>
                                 <th class="text-center" width="40"><input type="checkbox"></th>
                                 <th>名称</th>
+                                <th>图标</th>
                                 <th class="text-center" width="100">操作</th>
                             </tr>
                         </thead>
@@ -219,7 +220,7 @@
                 })
             })
             //删除分类
-        $('#tbody').on('click', '.delete', function() {
+        $('tbody').on('click', '.delete', function() {
             if (confirm('你真的要删除我吗？')) {
                 var id = $(this).parent().attr('data-id');
                 $.ajax({
