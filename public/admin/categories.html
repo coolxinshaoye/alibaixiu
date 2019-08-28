@@ -42,14 +42,15 @@
                         <h2>添加分类</h2>
                         <div class="form-group">
                             <label>名称</label>
-                            <input class="form-control" type="text" placeholder="请输入分类名称">
+                            <input class="form-control" type="text" name="title" placeholder="请输入分类名称">
                         </div>
                         <div class="form-group">
                             <label>图标</label>
-                            <input class="form-control" type="text" placeholder="请输入分类图标类名">
+                            <input class="form-control" type="text" name="className" placeholder="请输入分类图标类名">
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary" type="submit">添加</button>
+                            <button class="btn btn-primary" type="button" id="cArd">添加</button>
+                            <button class="btn btn-primary" type="button" id="cEdit" style="display: none">修改</button>
                         </div>
                     </form>
                 </div>
@@ -66,15 +67,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td class="text-center"><input type="checkbox"></td>
-                                <td>奇趣事</td>
-                                <td class="text-center">
-                                    <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-                                    <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-                                </td>
-                            </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td class="text-center"><input type="checkbox"></td>
                                 <td>潮科技</td>
                                 <td class="text-center">
@@ -88,8 +81,8 @@
                                 <td class="text-center">
                                     <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
                                     <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-                                </td>
-                            </tr>
+                                </td> -->
+                            <!-- </tr> -->
                         </tbody>
                     </table>
                 </div>
@@ -136,6 +129,111 @@
     <script src="../assets/vendors/jquery/jquery.js"></script>
     <script src="../assets/vendors/bootstrap/js/bootstrap.js"></script>
     <script src="../assets/js/comment.js"></script>
+    <script src="../assets/vendors/art-template/template-web.js"></script>
+
+    <script type="text/html" id="cTpl">
+        {{each list}}
+        <tr>
+            <td class="text-center"><input type="checkbox"></td>
+            <td>{{$value.title}}</td>
+            <td>{{$value.className}}</td>
+            <td class="text-center" data-id="{{$value._id}}">
+                <a href="javascript:;" class="btn btn-info btn-xs edit">编辑</a>
+                <a href="javascript:;" class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        var cArr = [];
+        //完成添加分类
+
+        $('#cArd').on('click', function() {
+            $.ajax({
+                type: 'post',
+                url: '/categories',
+                data: $('form').serialize(),
+                success: function(res) {
+                    console.log(res);
+
+                    cArr.push(res)
+                    console.log(cArr);
+
+                    render(cArr);
+                }
+            })
+        })
+
+        function render(arr) {
+            var str = template('cTpl', {
+                list: arr
+            });
+            $('tbody').html(str);
+        }
+        //分类显示功能
+        $.ajax({
+            url: '/categories',
+            type: 'get',
+            success: function(res) {
+                console.log(res);
+                cArr = res;
+                render(cArr)
+
+            }
+        });
+
+        // 编辑修改分类
+
+        var id;
+        $('tbody').on('click', '.edit', function() {
+            id = $(this).parent().attr('data-id');
+            console.log(id);
+
+            $('input[name="title"]').val($(this).parents('tr').children().eq(1).text());
+            $('input[name="className"]').val($(this).parents('tr').children().eq(2).text());
+            console.log($('input[name="className"]').val());
+            $('form > h2').text('修改分类');
+            $('#cArd').hide();
+            $('#cEdit').show();
+        });
+        $('#cEdit').on('click', function() {
+                var formData = $('form').serialize();
+                console.log(formData);
+                $.ajax({
+                    url: '/categories/' + id,
+                    type: 'put',
+                    data: formData,
+                    success: function(res) {
+                        console.log(res);
+                        // 在数组中找到正确对象的ID
+                        var index = cArr.findIndex(item => item._id == res._id)
+                        console.log(index);
+                        cArr[index] = res;
+                        render(cArr);
+                        $('form > h2').text('添加分类');
+                        $('#cArd').show();
+                        $('#cEdit').hide();
+                        $('input[name="title"]').val('');
+                        $('input[name="className"]').val('');
+                    }
+                })
+            })
+            //删除分类
+        $('#tbody').on('click', '.delete', function() {
+            if (confirm('你真的要删除我吗？')) {
+                var id = $(this).parent().attr('data-id');
+                $.ajax({
+                    type: 'delete',
+                    url: '/categories/' + id,
+                    success: function(res) {
+                        var index = cArr.findIndex(item => item._id == res._id);
+                        cArr.splice(index, 1);
+                        render(cArr)
+                    }
+                })
+            }
+        })
+    </script>
     <script>
         NProgress.done()
     </script>
