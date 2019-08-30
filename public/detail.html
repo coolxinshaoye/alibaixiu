@@ -1,5 +1,27 @@
+<script>
+  // 从浏览器获取数据
+  function getUrlParams(name){
+    // 去除截取的字符串中的&
+    var paramsAry = location.search.substr(1).split('&');
+    // 循环数据去除 = 号
+    for(var i = 0; i < paramsAry.length; i++) {
+      var tmp = paramsAry[i].split('=');
+      if(tmp[0] == name) {
+        console.log(tmp);
+        return tmp[1];
+      }
+    }
+    return -1;
+  }
+  var id = getUrlParams('id');
+  if(id == -1){
+    location.href = 'index.html';
+  }
+</script>
+
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +29,7 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/vendors/font-awesome/css/font-awesome.css">
 </head>
+
 <body>
   <div class="wrapper">
     <div class="topnav">
@@ -178,13 +201,13 @@
     </div>
     <div class="content">
       <div class="article">
-        <div class="breadcrumb">
+        <!-- <div class="breadcrumb">
           <dl>
             <dt>当前位置：</dt>
             <dd><a href="javascript:;">奇趣事</a></dd>
             <dd>变废为宝！将手机旧电池变为充电宝的Better RE移动电源</dd>
           </dl>
-        </div>
+        </div> -->
         <h2 class="title">
           <a href="javascript:;">又现酒窝夹笔盖新技能 城里人是不让人活了！</a>
         </h2>
@@ -197,8 +220,8 @@
       </div>
       <div class="panel hots">
         <h3>热门推荐</h3>
-        <ul>
-          <li>
+        <ul id="recommend">
+          <!-- <li>
             <a href="javascript:;">
               <img src="uploads/hots_2.jpg" alt="">
               <span>星球大战:原力觉醒视频演示 电影票68</span>
@@ -221,7 +244,7 @@
               <img src="uploads/hots_5.jpg" alt="">
               <span>实在太邪恶！照亮妹纸绝对领域与私处</span>
             </a>
-          </li>
+          </li> -->
         </ul>
       </div>
     </div>
@@ -229,5 +252,38 @@
       <p>© 2016 XIU主题演示 本站主题由 themebetter 提供</p>
     </div>
   </div>
+  <script src="assets/vendors/jquery/jquery.min.js"></script>
+  <script src="assets/vendors/swipe/swipe.js"></script>
+  <script src="assets/vendors/art-template/template-web.js"></script>
+  <script src="assets/js/recommend.js"></script>
+  <script type="text/html" id="postTpl">
+    <div class="breadcrumb">
+      <dl>
+        <dt>当前位置：</dt>
+        <dd><a href="javascript:;">{{$value}}</a></dd>
+        <dd>变废为宝！将手机旧电池变为充电宝的Better RE移动电源</dd>
+      </dl>
+    </div>
+    <h2 class="title">
+      <a href="javascript:;">又现酒窝夹笔盖新技能 城里人是不让人活了！</a>
+    </h2>
+    <div class="meta">
+      <span>DUX主题小秘 发布于 2020-06-29</span>
+      <span>分类: <a href="javascript:;">奇趣事</a></span>
+      <span>阅读: (2421)</span>
+      <span>评论: (143)</span>
+    </div>
+  </script>
+  <script>
+    // 查看文章详情
+    $.ajax({
+      url: '/posts/' + id,
+      type: 'get',
+      success: function (res) {
+        console.log(res);
+      }
+    })
+  </script>
 </body>
+
 </html>

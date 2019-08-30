@@ -55,7 +55,7 @@
 
     <div class="aside">
         <div class="profile">
-            <img class="avatar" src="../uploads/avatar.jpg">
+            <img class="avatar" src=" ">
             <h3 class="name">Coder</h3>
         </div>
         <ul class="nav">
@@ -106,6 +106,15 @@
             type:'get',
             success:function(response){
                 $('#categories').html('<strong>' + response.categoryCount + '</strong>个分类')
+            }
+        })
+        $.ajax({
+            type: 'get',
+            url: '/users/' + userId,
+            success: function (response) {
+                // console.log(response);
+                $('.avatar').attr('src', response.avatar)
+                $('.profile .name').html(response.nickName)
             }
         })
     </script>

@@ -14,3 +14,13 @@ $('#loginOut').on('click', function() {
         })
     }
 });
+
+$.ajax({
+    type:'get',
+    user:'/users/' + userId,
+    success:function(res){
+        $('.avatar').attr('src' , res.avatar);
+        $('.profile .name').html(res.nickName)
+        
+    }
+})
